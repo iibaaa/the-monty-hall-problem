@@ -30,5 +30,5 @@ class AutoCalculator:
         print("Lose ratio: ", self.lose_number / self.trial_number)
 
 if __name__ == "__main__":
-    auto = AutoCalculator(100, 100000, 1.0)
+    auto = AutoCalculator(3, 100000, 1.0)
     auto.loop()

@@ -1,10 +1,11 @@
 import numpy as np
 import argparse
-import time
 
 
 class ChoiceDoorContest:
     def __init__(self, number_of_doors):
+        if number_of_doors < 3:
+            raise ValueError("Number of doors must be greater than 2")
         self.doors = self.__create_doors(number_of_doors)
         self.doors_status = np.zeros_like(self.doors)
         self.first_choice = None
@@ -19,12 +20,11 @@ class ChoiceDoorContest:
             self.doors_status[self.first_choice] = 0
         return self.__check_win()
 
-    def game_manuel(self):
+    def game_manuel_terminal(self):
         self.__print_doors()
         self.first_choice = self.__choose_door()
         self.doors_status[self.first_choice] = 1
         self.__print_doors()
-        print("Host opens doors...")
         self.__host_open_doors()
         self.__print_doors()
         print("Do you want to change your choice? (y/n)")
@@ -57,9 +57,16 @@ class ChoiceDoorContest:
         else:
             pos = np.where(goats[0] == self.first_choice)
             goats = np.delete(goats, pos)
+        print(f"Host opens doors: {goats[0] + 1}")
         self.doors_status[goats] = 2
 
     def __print_doors(self):
+        for idx, i in enumerate(self.doors_status):
+            if i == 2 and self.doors[idx] == 0:
+                print(f" [ G ] ", end=" ")
+                continue
+            print(f" [ {idx + 1} ] ", end=" ")
+        print()
         for idx, i in enumerate(self.doors_status):
             if i == 0:
                 print(f" [ X ] ", end=" ")
@@ -68,24 +75,18 @@ class ChoiceDoorContest:
             elif i == 2:
                 print(f" [ O ] ", end=" ")
         print()
-        for idx, i in enumerate(self.doors_status):
-            if i == 2 and self.doors[idx] == 0:
-                print(f" [ G ] ", end=" ")
-                continue
-            print(f" [ {idx + 1} ] ", end=" ")
 
-        print()
+    def __choose_door(self):
+        choice = input("Choose a door (1-{}): ".format(len(self.doors)))
+        return int(choice) - 1
 
     @staticmethod
     def __create_doors(number_of_doors):
         # zero is the goat, one is the car
         doors = np.zeros(number_of_doors)
+        np.random.seed()
         doors[np.random.randint(0, number_of_doors)] = 1
         return doors
-
-    def __choose_door(self):
-        choice = input("Choose a door (1-{}): ".format(len(self.doors)))
-        return int(choice) - 1
 
 
 if __name__ == "__main__":
@@ -93,4 +94,4 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--number_of_doors", type=int, default=3)
     args = parser.parse_args()
     game = ChoiceDoorContest(args.number_of_doors)
-    game.game_manuel()
+    game.game_manuel_terminal()
